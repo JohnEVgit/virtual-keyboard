@@ -464,7 +464,7 @@ img {
   margin: 0.1em;
   transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
-.keyboard__btn:hover {
+.keyboard__btn:hover, .keyboard__btn:focus-visible {
   background-color: #222;
 }
 .keyboard__btn:active {

@@ -1,0 +1,192 @@
+@import 'normalize';
+
+:root {
+  --color-keyboard: #222222;
+  --color-text: #ffffff;
+  --color-primary: #333333;
+  --color-secondary: #111111;
+  --color-shadow: #000000;
+  --font-main: 'Roboto', Arial, Verdana, Helvetica, sans-serif;
+}
+
+html {
+  height: 100%;
+  min-height: 100%;
+  font-size: 1em;
+  line-height: 1.4;
+  scroll-behavior: smooth;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  box-shadow: 0 0 3px 2px rgba(0, 0, 0, 0.5);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  color: var(--color-text);
+  min-width: 320px;
+  font-family: var(--font-main);
+  background-color: #fcfcfc;
+  box-sizing: border-box;
+  padding-left: 10em;
+  padding-right: 10em;
+  font-size: 1.76vw;
+
+  &__laptop {
+    aspect-ratio: 16/18;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-top: 0.5em;
+    box-sizing: border-box;
+  }
+
+  &__footer {
+    position: sticky;
+    top: 100vh;
+  }
+}
+
+/* ==========================================================================
+   Laptop style
+   ========================================================================== */
+
+.laptop {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+
+  &__head {
+    aspect-ratio: 16/9;
+    border-radius: 1.25em 1.25em 0 0;
+    background-color: var(--color-keyboard);
+    box-sizing: border-box;
+    padding: 0 1.5em;
+    box-shadow: 1em 1em 1em rgba(17, 17, 17, 0.741);
+    border-top: 0.2em solid var(--color-secondary);
+    border-right: 0.2em solid var(--color-secondary);
+    border-left: 0.2em solid var(--color-secondary);
+  }
+
+  &__title {
+    margin: 0.2em auto;
+    font-size: 1.2em;
+    font-weight: normal;
+  }
+
+  &__screen {
+    width: 100%;
+    height: calc(100% - 4em);
+    resize: none;
+    box-sizing: border-box;
+    padding: 1em;
+  }
+
+  &__body {
+    aspect-ratio: 16/9;
+    border-radius: 0 0 1.25em 1.25em;
+    box-sizing: border-box;
+    padding: 1.5em 1.5em 0.5em;
+    background-color: var(--color-primary);
+    transform: perspective(50em) rotateX(50deg);
+    transform-origin: 50% 0;
+    box-shadow: 1em 1em 1em rgba(17, 17, 17, 0.741);
+    border-top: 0.2em solid var(--color-secondary);
+    border-right: 0.2em solid var(--color-secondary);
+    border-bottom: 1em solid var(--color-secondary);
+    border-left: 0.2em solid var(--color-secondary);
+  }
+
+  &__keyboard {
+    margin-top: 1.5em;
+  }
+}
+
+.keyboard {
+  &__lang {
+    margin: -0.6em;
+  }
+
+  &__row  {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.2em;
+  }
+
+  &__btn {
+    padding: 0;
+    border: 0.2em solid var(--color-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    font-size: 0.7em;
+    border-radius: 0.3em 0.3em 50% 50% / 0.3em 0.3em 0.3em 0.3em;
+    box-shadow: 0 0.2em 0.2em var(--color-shadow);
+    cursor: pointer;
+    margin: 0.1em;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--color-keyboard);
+    }
+
+    &:active {
+      transform: translateY(0.1em);
+      box-shadow: 0 0.1em 0.1em var(--color-shadow);
+    }
+
+    &--is-active {
+      background-color: var(--color-keyboard);
+      transform: translateY(0.1em);
+      box-shadow: 0 0.1em 0.1em var(--color-shadow);
+    }
+
+    &--is-small {
+      width: 6%;
+      aspect-ratio: 1/1;
+    }
+
+    &--is-big {
+      flex: 1 0 auto
+    }
+
+    &--ctrl {
+      width: 7.5%;
+      aspect-ratio: auto;
+    }
+  }
+
+  &__info {
+    width: 40%;
+    margin: 1.8em 0 0 auto;
+    font-size: 0.8em;
+    line-height: 1.25;
+  }
+}
+
+@media (min-aspect-ratio: 905/657) {
+  .page {
+    font-size: 2.425vh;
+
+    &__laptop {
+      width: auto;
+      height: 100vh;
+    }
+  }
+}

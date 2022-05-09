@@ -41,6 +41,7 @@ const createBaseMarkup = () => {
       <textarea class="laptop__screen js-laptop-screen" autofocus></textarea>
   </div>
   <div class="laptop__body">
+      <p class="keyboard__lang">Для переключения языка комбинация: Alt + Shift</p>
       <div class="laptop__keyboard keyboard js-keyboard"></div>
       <p class="keyboard__info">Клавиатура создана в операционной системе Windows</p>
   </div>
@@ -53,6 +54,7 @@ createBaseMarkup();
 
 const laptopScreenElem = bodyElem.querySelector('.js-laptop-screen');
 const keyboardElem = bodyElem.querySelector('.js-keyboard');
+let isCaps = false;
 
 const createBtn = (name) => {
   const btnElem = document.createElement('button');
@@ -62,43 +64,47 @@ const createBtn = (name) => {
 
   switch (name) {
     case 'Backspace':
-      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--backspace');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-big', 'keyboard__btn--backspace');
       break;
 
     case 'Tab':
-      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--tab');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-big', 'keyboard__btn--tab');
       break;
 
     case 'CapsLock':
-      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--capsLock');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-big', 'keyboard__btn--capsLock');
       break;
 
     case 'Enter':
-      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--enter');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-big', 'keyboard__btn--enter');
       break;
 
     case 'Shift':
-      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--shift');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-big', 'keyboard__btn--shift');
       break;
 
     case 'Ctrl':
-      btnElem.classList.add('keyboard__btn--typing', 'keyboard__btn--ctrl');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-small', 'keyboard__btn--ctrl');
       break;
 
     case 'Alt':
-      btnElem.classList.add('keyboard__btn--typing', 'keyboard__btn--alt');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-small', 'keyboard__btn--alt');
       break;
 
     case 'Win':
-      btnElem.classList.add('keyboard__btn--typing', 'keyboard__btn--win');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-small', 'keyboard__btn--win');
+      break;
+
+    case 'Del':
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-small');
       break;
 
     case '':
-      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--space');
+      btnElem.classList.add('keyboard__btn--control', 'keyboard__btn--is-big', 'keyboard__btn--space');
       break;
 
     default:
-      btnElem.classList.add('keyboard__btn--typing');
+      btnElem.classList.add('keyboard__btn--typing', 'keyboard__btn--is-small');
   }
 
   return btnElem;
@@ -107,6 +113,12 @@ const createBtn = (name) => {
 const createKeyboard = () => {
   const keyboardFragment = document.createDocumentFragment();
   const keyboardRowFragment = document.createDocumentFragment();
+
+  if (currentLanguage === 'en') {
+    currentBtnsArr = btnsArr;
+  } else {
+    currentBtnsArr = btnsArrRu;
+  }
 
   currentBtnsArr.forEach((rowArray) => {
     const rowElem = document.createElement('div');
@@ -134,39 +146,202 @@ const changeKeyboard = () => {
   });
 };
 
+const keysPressed = {};
+const btnsTyping = document.querySelectorAll('.keyboard__btn--typing');
+
 const clickBtn = (e) => {
   if (!e.target.classList.contains('keyboard__btn')) {
     laptopScreenElem.focus();
     return;
   }
 
-  if (e.target.textContent === 'Shift') {
-    if (currentBtnsArr === btnsArr) {
-      currentBtnsArr = btnsArrShift;
-    } else {
-      currentBtnsArr = btnsArr;
+  const eventKey = e.target.textContent;
+  const selectionStartPrev = laptopScreenElem.selectionStart;
+
+  e.preventDefault();
+
+  let hasKey = false;
+
+  if (eventKey === 'Shift') {
+    if (currentLanguage === 'en') {
+      if (currentBtnsArr === btnsArr) {
+        currentBtnsArr = btnsArrShift;
+      } else {
+        currentBtnsArr = btnsArr;
+      }
+    } else if (currentLanguage === 'ru') {
+      if (currentBtnsArr === btnsArrRu) {
+        currentBtnsArr = btnsArrShiftRu;
+      } else {
+        currentBtnsArr = btnsArrRu;
+      }
     }
+
     changeKeyboard();
+
+    if (isCaps) {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = elem.textContent.toLowerCase();
+      });
+    } else {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = elem.textContent.toUpperCase();
+      });
+    }
+
     laptopScreenElem.focus();
     return;
   }
-
-  laptopScreenElem.value += e.target.textContent;
-  laptopScreenElem.focus();
-  laptopScreenElem.selectionStart = laptopScreenElem.value.length;
 
   if (currentBtnsArr === btnsArrShift) {
     currentBtnsArr = btnsArr;
     changeKeyboard();
   }
+
+  if (eventKey === 'Tab') {
+    laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
+    }    ${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
+    laptopScreenElem.focus();
+    laptopScreenElem.selectionStart = selectionStartPrev + 4;
+    laptopScreenElem.selectionEnd = selectionStartPrev + 4;
+  }
+
+  if (eventKey === 'Enter') {
+    laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
+    }\n${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
+    laptopScreenElem.focus();
+    laptopScreenElem.selectionStart = selectionStartPrev + 1;
+    laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+  }
+
+  if (eventKey === 'Backspace') {
+    if (selectionStartPrev > 0) {
+      laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev - 1)
+      + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+      laptopScreenElem.focus();
+      laptopScreenElem.selectionStart = selectionStartPrev - 1;
+      laptopScreenElem.selectionEnd = selectionStartPrev - 1;
+    }
+  }
+
+  if (eventKey === ' ') {
+    laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
+    } ${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
+    laptopScreenElem.focus();
+    laptopScreenElem.selectionStart = selectionStartPrev + 1;
+    laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+  }
+
+  if (eventKey === 'Delete') {
+    if (selectionStartPrev < laptopScreenElem.value.length) {
+      laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+      + laptopScreenElem.value.slice(selectionStartPrev + 1, laptopScreenElem.value.length);
+      laptopScreenElem.focus();
+      laptopScreenElem.selectionStart = selectionStartPrev;
+      laptopScreenElem.selectionEnd = selectionStartPrev;
+    }
+  }
+
+  if (eventKey === 'CapsLock') {
+    if (isCaps) {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = theElem.textContent.toLowerCase();
+        isCaps = false;
+      });
+    } else {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = theElem.textContent.toUpperCase();
+        isCaps = true;
+      });
+    }
+  }
+
+  currentBtnsArr.forEach((rowArray, i) => {
+    rowArray.forEach((btnName, j) => {
+      if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+      || (eventKey === 'ArrowUp' && btnName === '▲')
+      || (eventKey === 'ArrowDown' && btnName === '▼')
+      || (eventKey === 'ArrowRight' && btnName === '►')
+      || (eventKey === 'Delete' && btnName === 'Del')
+      || (eventKey === 'Control' && btnName === 'Ctrl')
+      || (eventKey === 'Meta' && btnName === 'Win')) {
+        if (btnsArr[i][j].length === 1) {
+          laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+          + ((eventKey === btnName.toUpperCase()) ? currentBtnsArr[i][j].toUpperCase()
+            : currentBtnsArr[i][j])
+          + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+          laptopScreenElem.focus();
+          laptopScreenElem.selectionStart = selectionStartPrev + 1;
+          laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+        }
+        hasKey = true;
+      }
+    });
+  });
+
+  if (hasKey) {
+    return;
+  }
+
+  if (currentBtnsArr === btnsArr) {
+    btnsArrRu.forEach((rowArray, i) => {
+      rowArray.forEach((btnName, j) => {
+        if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+        || (eventKey === 'ArrowUp' && btnName === '▲')
+        || (eventKey === 'ArrowDown' && btnName === '▼')
+        || (eventKey === 'ArrowRight' && btnName === '►')
+        || (eventKey === 'Delete' && btnName === 'Del')
+        || (eventKey === 'Control' && btnName === 'Ctrl')
+        || (eventKey === 'Meta' && btnName === 'Win')) {
+          if (btnsArr[i][j].length === 1) {
+            laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+            + ((eventKey === btnName.toUpperCase()) ? btnsArr[i][j].toUpperCase() : btnsArr[i][j])
+            + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+            laptopScreenElem.focus();
+            laptopScreenElem.selectionStart = selectionStartPrev + 1;
+            laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+          }
+        }
+      });
+    });
+  } else {
+    btnsArr.forEach((rowArray, i) => {
+      rowArray.forEach((btnName, j) => {
+        if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+        || (eventKey === 'ArrowUp' && btnName === '▲')
+        || (eventKey === 'ArrowDown' && btnName === '▼')
+        || (eventKey === 'ArrowRight' && btnName === '►')
+        || (eventKey === 'Delete' && btnName === 'Del')
+        || (eventKey === 'Control' && btnName === 'Ctrl')
+        || (eventKey === 'Meta' && btnName === 'Win')) {
+          if (btnsArr[i][j].length === 1) {
+            laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+            + ((eventKey === btnName.toUpperCase()) ? btnsArrRu[i][j].toUpperCase()
+              : btnsArrRu[i][j])
+            + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+            laptopScreenElem.focus();
+            laptopScreenElem.selectionStart = selectionStartPrev + 1;
+            laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+          }
+        }
+      });
+    });
+  }
 };
 
 keyboardElem.addEventListener('click', clickBtn);
 
-const keysPressed = {};
-
 const keyDown = (e) => {
   const eventKey = e.key;
+  const selectionStartPrev = laptopScreenElem.selectionStart;
+
+  e.preventDefault();
+
+  let hasKey = false;
 
   keysPressed[e.key] = true;
 
@@ -190,19 +365,161 @@ const keyDown = (e) => {
     }
 
     changeKeyboard();
+
+    if (isCaps) {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = elem.textContent.toLowerCase();
+      });
+    } else {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = elem.textContent.toUpperCase();
+      });
+    }
+  }
+
+  if (eventKey === 'Tab') {
+    laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
+    }    ${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
+    laptopScreenElem.focus();
+    laptopScreenElem.selectionStart = selectionStartPrev + 4;
+    laptopScreenElem.selectionEnd = selectionStartPrev + 4;
+  }
+
+  if (eventKey === 'Enter') {
+    laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
+    }\n${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
+    laptopScreenElem.focus();
+    laptopScreenElem.selectionStart = selectionStartPrev + 1;
+    laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+  }
+
+  if (eventKey === 'Backspace') {
+    if (selectionStartPrev > 0) {
+      laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev - 1)
+      + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+      laptopScreenElem.focus();
+      laptopScreenElem.selectionStart = selectionStartPrev - 1;
+      laptopScreenElem.selectionEnd = selectionStartPrev - 1;
+    }
+  }
+
+  if (eventKey === ' ') {
+    laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
+    } ${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
+    laptopScreenElem.focus();
+    laptopScreenElem.selectionStart = selectionStartPrev + 1;
+    laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+  }
+
+  if (eventKey === 'Delete') {
+    if (selectionStartPrev < laptopScreenElem.value.length) {
+      laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+      + laptopScreenElem.value.slice(selectionStartPrev + 1, laptopScreenElem.value.length);
+      laptopScreenElem.focus();
+      laptopScreenElem.selectionStart = selectionStartPrev;
+      laptopScreenElem.selectionEnd = selectionStartPrev;
+    }
+  }
+
+  if (eventKey === 'CapsLock') {
+    if (isCaps) {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = theElem.textContent.toLowerCase();
+        isCaps = false;
+      });
+    } else {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = theElem.textContent.toUpperCase();
+        isCaps = true;
+      });
+    }
   }
 
   currentBtnsArr.forEach((rowArray, i) => {
     rowArray.forEach((btnName, j) => {
-      if (eventKey === btnName) {
+      if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+      || (eventKey === 'ArrowUp' && btnName === '▲')
+      || (eventKey === 'ArrowDown' && btnName === '▼')
+      || (eventKey === 'ArrowRight' && btnName === '►')
+      || (eventKey === 'Delete' && btnName === 'Del')
+      || (eventKey === 'Control' && btnName === 'Ctrl')
+      || (eventKey === 'Meta' && btnName === 'Win')) {
         document.querySelector(`.keyboard__row:nth-child(${i + 1}) .keyboard__btn:nth-child(${j + 1})`).classList.add('keyboard__btn--is-active');
+        if (btnsArr[i][j].length === 1) {
+          laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+          + ((eventKey === btnName.toUpperCase()) ? currentBtnsArr[i][j].toUpperCase()
+            : currentBtnsArr[i][j])
+          + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+          laptopScreenElem.focus();
+          laptopScreenElem.selectionStart = selectionStartPrev + 1;
+          laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+        }
+        hasKey = true;
       }
     });
   });
+
+  if (hasKey) {
+    return;
+  }
+
+  if (currentBtnsArr === btnsArr) {
+    btnsArrRu.forEach((rowArray, i) => {
+      rowArray.forEach((btnName, j) => {
+        if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+        || (eventKey === 'ArrowUp' && btnName === '▲')
+        || (eventKey === 'ArrowDown' && btnName === '▼')
+        || (eventKey === 'ArrowRight' && btnName === '►')
+        || (eventKey === 'Delete' && btnName === 'Del')
+        || (eventKey === 'Control' && btnName === 'Ctrl')
+        || (eventKey === 'Meta' && btnName === 'Win')) {
+          document.querySelector(`.keyboard__row:nth-child(${i + 1}) .keyboard__btn:nth-child(${j + 1})`).classList.add('keyboard__btn--is-active');
+
+          if (btnsArr[i][j].length === 1) {
+            laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+            + ((eventKey === btnName.toUpperCase()) ? btnsArr[i][j].toUpperCase() : btnsArr[i][j])
+            + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+            laptopScreenElem.focus();
+            laptopScreenElem.selectionStart = selectionStartPrev + 1;
+            laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+          }
+        }
+      });
+    });
+  } else {
+    btnsArr.forEach((rowArray, i) => {
+      rowArray.forEach((btnName, j) => {
+        if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+        || (eventKey === 'ArrowUp' && btnName === '▲')
+        || (eventKey === 'ArrowDown' && btnName === '▼')
+        || (eventKey === 'ArrowRight' && btnName === '►')
+        || (eventKey === 'Delete' && btnName === 'Del')
+        || (eventKey === 'Control' && btnName === 'Ctrl')
+        || (eventKey === 'Meta' && btnName === 'Win')) {
+          document.querySelector(`.keyboard__row:nth-child(${i + 1}) .keyboard__btn:nth-child(${j + 1})`).classList.add('keyboard__btn--is-active');
+
+          if (btnsArr[i][j].length === 1) {
+            laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
+            + ((eventKey === btnName.toUpperCase()) ? btnsArrRu[i][j].toUpperCase()
+              : btnsArrRu[i][j])
+            + laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length);
+            laptopScreenElem.focus();
+            laptopScreenElem.selectionStart = selectionStartPrev + 1;
+            laptopScreenElem.selectionEnd = selectionStartPrev + 1;
+          }
+        }
+      });
+    });
+  }
 };
 
 const keyUp = (e) => {
   const eventKey = e.key;
+  let hasKey = false;
 
   if (eventKey === 'Shift') {
     if (currentLanguage === 'en') {
@@ -212,17 +529,76 @@ const keyUp = (e) => {
     }
 
     changeKeyboard();
+
+    if (isCaps) {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = elem.textContent.toUpperCase();
+      });
+    } else {
+      btnsTyping.forEach((elem) => {
+        const theElem = elem;
+        theElem.textContent = elem.textContent.toLowerCase();
+      });
+    }
+  }
+
+  if (eventKey === 'Control' || eventKey === 'Meta' || eventKey === 'Alt') {
+    e.preventDefault();
   }
 
   currentBtnsArr.forEach((rowArray, i) => {
     rowArray.forEach((btnName, j) => {
-      if (eventKey === btnName) {
+      if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+      || (eventKey === 'ArrowUp' && btnName === '▲')
+      || (eventKey === 'ArrowDown' && btnName === '▼')
+      || (eventKey === 'ArrowRight' && btnName === '►')
+      || (eventKey === 'Delete' && btnName === 'Del')
+      || (eventKey === 'Control' && btnName === 'Ctrl')
+      || (eventKey === 'Meta' && btnName === 'Win')) {
         document.querySelector(`.keyboard__row:nth-child(${i + 1}) .keyboard__btn:nth-child(${j + 1})`).classList.remove('keyboard__btn--is-active');
+        hasKey = true;
       }
     });
   });
 
   delete keysPressed[e.key];
+
+  if (hasKey) {
+    return;
+  }
+
+  if (currentBtnsArr === btnsArr) {
+    btnsArrRu.forEach((rowArray, i) => {
+      rowArray.forEach((btnName, j) => {
+        if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+        || (eventKey === 'ArrowUp' && btnName === '▲')
+        || (eventKey === 'ArrowDown' && btnName === '▼')
+        || (eventKey === 'ArrowRight' && btnName === '►')
+        || (eventKey === 'Delete' && btnName === 'Del')
+        || (eventKey === 'Control' && btnName === 'Ctrl')
+        || (eventKey === 'Meta' && btnName === 'Win')) {
+          document.querySelector(`.keyboard__row:nth-child(${i + 1}) .keyboard__btn:nth-child(${j + 1})`).classList.remove('keyboard__btn--is-active');
+        }
+      });
+    });
+  } else {
+    btnsArr.forEach((rowArray, i) => {
+      rowArray.forEach((btnName, j) => {
+        if (eventKey === btnName || eventKey === btnName.toUpperCase() || (eventKey === 'ArrowLeft' && btnName === '◄')
+        || (eventKey === 'ArrowUp' && btnName === '▲')
+        || (eventKey === 'ArrowDown' && btnName === '▼')
+        || (eventKey === 'ArrowRight' && btnName === '►')
+        || (eventKey === 'Delete' && btnName === 'Del')
+        || (eventKey === 'Control' && btnName === 'Ctrl')
+        || (eventKey === 'Meta' && btnName === 'Win')) {
+          document.querySelector(`.keyboard__row:nth-child(${i + 1}) .keyboard__btn:nth-child(${j + 1})`).classList.remove('keyboard__btn--is-active');
+        }
+      });
+    });
+  }
+
+  e.preventDefault();
 };
 
 document.addEventListener('keydown', keyDown);

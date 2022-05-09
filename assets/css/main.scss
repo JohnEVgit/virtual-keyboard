@@ -3,7 +3,9 @@
 :root {
   --color-keyboard: #222222;
   --color-text: #ffffff;
-  --color-primary: #1b762a;
+  --color-primary: #333333;
+  --color-secondary: #111111;
+  --color-shadow: #000000;
   --font-main: 'Roboto', Arial, Verdana, Helvetica, sans-serif;
 }
 
@@ -74,9 +76,9 @@ img {
     box-sizing: border-box;
     padding: 0 1.5em;
     box-shadow: 1em 1em 1em rgba(17, 17, 17, 0.741);
-    border-top: 0.2em solid #111;
-    border-right: 0.2em solid #111;
-    border-left: 0.2em solid #111;
+    border-top: 0.2em solid var(--color-secondary);
+    border-right: 0.2em solid var(--color-secondary);
+    border-left: 0.2em solid var(--color-secondary);
   }
 
   &__title {
@@ -98,15 +100,14 @@ img {
     border-radius: 0 0 1.25em 1.25em;
     box-sizing: border-box;
     padding: 1.5em 1.5em 0.5em;
-    background-color: #333;
+    background-color: var(--color-primary);
     transform: perspective(50em) rotateX(50deg);
     transform-origin: 50% 0;
     box-shadow: 1em 1em 1em rgba(17, 17, 17, 0.741);
-    border-top: 0.2em solid #111;
-    border-right: 0.2em solid #111;
-    border-bottom: 1em solid #111;
-    border-left: 0.2em solid #111;
-    
+    border-top: 0.2em solid var(--color-secondary);
+    border-right: 0.2em solid var(--color-secondary);
+    border-bottom: 1em solid var(--color-secondary);
+    border-left: 0.2em solid var(--color-secondary);
   }
 
   &__keyboard {
@@ -115,6 +116,10 @@ img {
 }
 
 .keyboard {
+  &__lang {
+    margin: -0.6em;
+  }
+
   &__row  {
     display: flex;
     justify-content: space-between;
@@ -123,41 +128,41 @@ img {
 
   &__btn {
     padding: 0;
-    border: 0.2em solid #111;
+    border: 0.2em solid var(--color-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #333;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-text);
     font-size: 0.7em;
     border-radius: 0.3em 0.3em 50% 50% / 0.3em 0.3em 0.3em 0.3em;
-    box-shadow: 0 0.2em 0.2em #000;
+    box-shadow: 0 0.2em 0.2em var(--color-shadow);
     cursor: pointer;
     margin: 0.1em;
     transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 
     &:hover,
     &:focus-visible {
-      background-color: #222;
+      background-color: var(--color-keyboard);
     }
 
     &:active {
       transform: translateY(0.1em);
-      box-shadow: 0 0.1em 0.1em #000;
+      box-shadow: 0 0.1em 0.1em var(--color-shadow);
     }
 
     &--is-active {
-      background-color: #222;
+      background-color: var(--color-keyboard);
       transform: translateY(0.1em);
-      box-shadow: 0 0.1em 0.1em #000;
+      box-shadow: 0 0.1em 0.1em var(--color-shadow);
     }
 
-    &--typing {
+    &--is-small {
       width: 6%;
       aspect-ratio: 1/1;
     }
 
-    &--control {
+    &--is-big {
       flex: 1 0 auto
     }
 

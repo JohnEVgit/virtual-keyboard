@@ -226,7 +226,7 @@ const clickBtn = (e) => {
     }
   }
 
-  if (eventKey === ' ') {
+  if (eventKey === '') {
     laptopScreenElem.value = `${laptopScreenElem.value.slice(0, selectionStartPrev)
     } ${laptopScreenElem.value.slice(selectionStartPrev, laptopScreenElem.value.length)}`;
     laptopScreenElem.focus();
@@ -234,7 +234,7 @@ const clickBtn = (e) => {
     laptopScreenElem.selectionEnd = selectionStartPrev + 1;
   }
 
-  if (eventKey === 'Delete') {
+  if (eventKey === 'Del') {
     if (selectionStartPrev < laptopScreenElem.value.length) {
       laptopScreenElem.value = laptopScreenElem.value.slice(0, selectionStartPrev)
       + laptopScreenElem.value.slice(selectionStartPrev + 1, laptopScreenElem.value.length);
@@ -249,12 +249,14 @@ const clickBtn = (e) => {
       btnsTyping.forEach((elem) => {
         const theElem = elem;
         theElem.textContent = theElem.textContent.toLowerCase();
+        e.target.classList.remove('keyboard__btn--is-active');
         isCaps = false;
       });
     } else {
       btnsTyping.forEach((elem) => {
         const theElem = elem;
         theElem.textContent = theElem.textContent.toUpperCase();
+        e.target.classList.add('keyboard__btn--is-active');
         isCaps = true;
       });
     }
@@ -545,6 +547,10 @@ const keyUp = (e) => {
 
   if (eventKey === 'Control' || eventKey === 'Meta' || eventKey === 'Alt') {
     e.preventDefault();
+  }
+
+  if (isCaps && eventKey === 'CapsLock') {
+    return;
   }
 
   currentBtnsArr.forEach((rowArray, i) => {

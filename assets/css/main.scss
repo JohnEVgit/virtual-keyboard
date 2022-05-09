@@ -146,6 +146,12 @@ img {
       box-shadow: 0 0.1em 0.1em #000;
     }
 
+    &--is-active {
+      background-color: #222;
+      transform: translateY(0.1em);
+      box-shadow: 0 0.1em 0.1em #000;
+    }
+
     &--typing {
       width: 6%;
       aspect-ratio: 1/1;
